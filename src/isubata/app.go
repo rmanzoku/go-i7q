@@ -222,6 +222,14 @@ func getInitialize(c echo.Context) error {
 		fmt.Println(err)
 	}
 
+	// ベンチ走行で変わってる可能性あるので、ここでも初期化
+	_, err = db.Exec(`
+UPDATE haveread SET unread = (SELECT COUNT(*) FROM message WHERE channel_id = haveread.channel_id AND haveread.message_id < id)
+`)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return c.String(204, "")
 }
 
