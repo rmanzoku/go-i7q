@@ -413,7 +413,7 @@ func getMessage(c echo.Context) error {
 		var cnt int64
 		err = db.Get(&cnt,
 			"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ? AND ? < id",
-			chID, messages[0].ID)
+			chanID, messages[0].ID)
 		if err != nil {
 			panic(err)
 		}
