@@ -4,7 +4,7 @@ var jsonifyCache map[int64]User
 
 func initJsonifyCache() error {
 	res := []User{}
-	err := db.Get(&res, "SELECT user_id,name,display_name,avatar_icon FROM user")
+	err := db.Get(&res, "SELECT id,name,display_name,avatar_icon FROM user")
 	if err != nil {
 		return err
 	}
