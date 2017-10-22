@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -209,6 +210,17 @@ func getInitialize(c echo.Context) error {
 	db.MustExec("DELETE FROM channel WHERE id > 10")
 	db.MustExec("DELETE FROM message WHERE id > 10000")
 	db.MustExec("DELETE FROM haveread")
+
+	// ディレクトリを消して、新鮮な画像をもってくる
+	err := exec.Command("rm", "-rf", "/home/isucon/isubata/webapp/public/icons").Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = exec.Command("cp", "-rf", "/home/isucon/isubata/webapp/public/images", "/home/isucon/isubata/webapp/public/icons").Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return c.String(204, "")
 }
 
