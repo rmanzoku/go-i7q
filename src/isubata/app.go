@@ -202,10 +202,10 @@ func register(name, password string) (int64, error) {
 	}
 
 	//キャッシュに追加
-	id, _ := res.LastInsertId()
+	id, err := res.LastInsertId()
 	addJsonifyCache(id, name, name, "default.png")
 
-	return res.LastInsertId()
+	return id, err
 }
 
 // request handlers
