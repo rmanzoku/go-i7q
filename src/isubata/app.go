@@ -208,6 +208,7 @@ func getInitialize(c echo.Context) error {
 	db.MustExec("DELETE FROM channel WHERE id > 10")
 	db.MustExec("DELETE FROM message WHERE id > 10000")
 	db.MustExec("DELETE FROM haveread")
+	initJsonifyCache()
 	return c.String(204, "")
 }
 
@@ -351,12 +352,15 @@ func postMessage(c echo.Context) error {
 }
 
 func jsonifyMessage(m Message) (map[string]interface{}, error) {
+
 	u := User{}
-	err := db.Get(&u, "SELECT name, display_name, avatar_icon FROM user WHERE id = ?",
-		m.UserID)
-	if err != nil {
-		return nil, err
-	}
+	u = jsonifyCache[m.UserID]
+
+	//err := db.Get(&u, "SELECT name, display_name, avatar_icon FROM user WHERE id = ?",
+	//	m.UserID)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	r := make(map[string]interface{})
 	r["id"] = m.ID
