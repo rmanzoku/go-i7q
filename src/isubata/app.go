@@ -209,6 +209,12 @@ func getInitialize(c echo.Context) error {
 	db.MustExec("DELETE FROM channel WHERE id > 10")
 	db.MustExec("DELETE FROM message WHERE id > 10000")
 	db.MustExec("DELETE FROM haveread")
+
+	// 新鮮な画像をmv
+	if err := os.Rename("/home/isucon/isubata/webapp/public/images", "/home/isucon/isubata/webapp/public/icons"); err != nil {
+		fmt.Println(err)
+	}
+
 	return c.String(204, "")
 }
 
