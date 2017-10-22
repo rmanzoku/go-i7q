@@ -796,6 +796,6 @@ func main() {
 	e.POST("add_channel", postAddChannel)
 	e.GET("/icons/:file_name", getIcon)
 
-	unread = make(map[int64]int64)
+	unread = make(map[int64]int64, 10)
 	e.Start(":5000")
 }
