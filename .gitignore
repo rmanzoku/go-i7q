@@ -1,3 +1,5 @@
 go-i7q
 
 bin/*
+.DS_Store
+
