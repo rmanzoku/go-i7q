@@ -205,7 +205,9 @@ func register(name, password string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return res.LastInsertId()
+	id, err := res.LastInsertId()
+	addJsonifyCache(id, name, name, "default.png")
+	return id, err
 }
 
 // request handlers
@@ -217,8 +219,13 @@ func getInitialize(c echo.Context) error {
 	db.MustExec("DELETE FROM message WHERE id > 10000")
 	db.MustExec("DELETE FROM haveread")
 
+	err := initJsonifyCache()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	// ディレクトリを消して、新鮮な画像をもってくる
-	err := exec.Command("rm", "-rf", "/home/isucon/isubata/webapp/public/icons").Run()
+	err = exec.Command("rm", "-rf", "/home/isucon/isubata/webapp/public/icons").Run()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -372,12 +379,14 @@ func postMessage(c echo.Context) error {
 }
 
 func jsonifyMessage(m Message) (map[string]interface{}, error) {
-	u := User{}
-	err := db.Get(&u, "SELECT name, display_name, avatar_icon FROM user WHERE id = ?",
-		m.UserID)
-	if err != nil {
-		return nil, err
-	}
+
+	u := jsonifyCache[m.UserID]
+
+	//err := db.Get(&u, "SELECT name, display_name, avatar_icon FROM user WHERE id = ?",
+	//	m.UserID)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	r := make(map[string]interface{})
 	r["id"] = m.ID
@@ -719,6 +728,7 @@ func postProfile(c echo.Context) error {
 		if err != nil {
 			return err
 		}
+		postJsonifyCache(self.ID, name, avatarName)
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/")
