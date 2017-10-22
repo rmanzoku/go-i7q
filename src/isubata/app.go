@@ -681,6 +681,7 @@ func postProfile(c echo.Context) error {
 		output := fmt.Sprintf("/home/isucon/isubata/webapp/public/icons/%s", avatarName)
 		file, err := os.Create(output)
 		if err != nil {
+			panic(err)
 			// Openエラー処理
 		}
 		defer file.Close()
