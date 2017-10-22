@@ -703,8 +703,8 @@ func postProfile(c echo.Context) error {
 		file.Write(([]byte)(avatarData))
 		file.Close()
 		// dataにinsertはいらない
-		//_, err := db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
-		_, err = db.Exec("INSERT INTO image (name) VALUES (?)", avatarName)
+		_, err = db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
+		//_, err = db.Exec("INSERT INTO image (name) VALUES (?)", avatarName)
 		if err != nil {
 			return err
 		}
