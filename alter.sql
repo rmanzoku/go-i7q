@@ -1,2 +1,3 @@
-ALTER TABLE haveread ADD unread bigint(20) DEFAULT 0;
+ALTER TABLE image ADD INDEX name(name);
+ALTER TABLE message ADD INDEX channel_id(channel_id);
 
