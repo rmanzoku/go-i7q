@@ -1,18 +1,8 @@
-NAME     := i7q
-VERSION  := v0.0.1
-REVISION := $(shell git rev-parse --short HEAD)
+GOPATH := ${PWD}
+export GOPATH
 
-SRCS    := $(shell find . -type f -name '*.go')
-LDFLAGS := -ldflags="-s -w -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -extldflags \"-static\""
+build:
+	go build -v isubata
 
-bin/$(NAME): $(SRCS)
-	go build $(LDFLAGS) -o bin/$(NAME)
-
-.PHONY: clean
-clean:
-	rm -rf bin/*
-	rm -rf vendor/*
-
-.PHONY: install
-install:
-	go install $(LDFLAGS)
+vet:
+	go vet ./src/isubata/...

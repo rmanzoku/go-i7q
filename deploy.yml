@@ -10,20 +10,20 @@
     - local_action: make chdir=./
       run_once: yes
 
-    - name: dir
-      file: path=/home/isucon/go-i7q state=directory mode=0777
-      become: yes
+    # - name: dir
+    #   file: path=/home/isucon/isubata/webapp/go state=directory mode=0777
+    #   become: yes
 
     - name: deploy
-      copy: src={{ item }} dest=/home/isucon/go-i7q/ mode=0777
+      copy: src={{ item }} dest=/home/isucon/isubata/webapp/go/{{ item }} mode=0777
       with_items:
-        - bin/i7q
+        - isubata
       become: yes
 
     # - name: "アプリケーションの起動確認"
     #   systemd: name={{ appname }}.service state=started
     #   become: yes
 
-    # - name: "アプリケーションの再起動"
-    #   systemd: name={{ appname }}.service state=reloaded
-    #   become: yes
+    - name: "アプリケーションの再起動"
+      systemd: name=isubata.golang.service state=restarted
+      become: yes

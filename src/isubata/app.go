@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -47,10 +48,11 @@ func init() {
 	crand.Read(seedBuf)
 	rand.Seed(int64(binary.LittleEndian.Uint64(seedBuf)))
 
-	db_host := os.Getenv("ISUBATA_DB_HOST")
-	if db_host == "" {
-		db_host = "127.0.0.1"
-	}
+	//db_host := os.Getenv("ISUBATA_DB_HOST")
+	//if db_host == "" {
+	//	db_host = "127.0.0.1"
+	//}
+	db_host := "192.168.101.3"
 	db_port := os.Getenv("ISUBATA_DB_PORT")
 	if db_port == "" {
 		db_port = "3306"
@@ -214,7 +216,19 @@ func getInitialize(c echo.Context) error {
 	db.MustExec("DELETE FROM channel WHERE id > 10")
 	db.MustExec("DELETE FROM message WHERE id > 10000")
 	db.MustExec("DELETE FROM haveread")
+
 	initJsonifyCache()
+
+	// ディレクトリを消して、新鮮な画像をもってくる
+	err := exec.Command("rm", "-rf", "/home/isucon/isubata/webapp/public/icons").Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = exec.Command("cp", "-rf", "/home/isucon/isubata/webapp/public/images", "/home/isucon/isubata/webapp/public/icons").Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return c.String(204, "")
 }
 
@@ -673,7 +687,19 @@ func postProfile(c echo.Context) error {
 	}
 
 	if avatarName != "" && len(avatarData) > 0 {
-		_, err := db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
+
+		// publicに画像を吐く
+		output := fmt.Sprintf("/home/isucon/isubata/webapp/public/icons/%s", avatarName)
+		file, err := os.Create(output)
+		if err != nil {
+			// Openエラー処理
+		}
+		defer file.Close()
+		file.Write(([]byte)(avatarData))
+
+		// dataにinsertはいらない
+		//_, err := db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
+		_, err = db.Exec("INSERT INTO image (name) VALUES (?)", avatarName)
 		if err != nil {
 			return err
 		}
