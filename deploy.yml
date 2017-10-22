@@ -3,4 +3,27 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
   tasks:
-    - shell: date
+    # - name: "踏み台へGit pull"
+    #   local_action: git repo=git@github.com:rmanzoku/go-i7q.git version=master dest=./ accept_hostkey=yes depth=1 key_file=~/.ssh/id_rsa
+    #   run_once: yes
+
+    - local_action: make chdir=./
+      run_once: yes
+
+    - name: dir
+      file: path=/home/isucon/go-i7q state=directory mode=0777
+      become: yes
+
+    - name: deploy
+      copy: src={{ item }} dest=/home/isucon/go-i7q/ mode=0777
+      with_items:
+        - bin/i7q
+      become: yes
+
+    # - name: "アプリケーションの起動確認"
+    #   systemd: name={{ appname }}.service state=started
+    #   become: yes
+
+    # - name: "アプリケーションの再起動"
+    #   systemd: name={{ appname }}.service state=reloaded
+    #   become: yes
