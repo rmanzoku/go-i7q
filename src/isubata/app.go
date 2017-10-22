@@ -678,17 +678,18 @@ func postProfile(c echo.Context) error {
 	if avatarName != "" && len(avatarData) > 0 {
 
 		// publicに画像を吐く
-		output := fmt.Sprintf("/home/isucon/isubata/webapp/public/icons/%s", avatarName)
-		file, err := os.Create(output)
-		if err != nil {
-			panic(err)
-			// Openエラー処理
-		}
-		file.Write(([]byte)(avatarData))
-		file.Close()
+		//output := fmt.Sprintf("/home/isucon/isubata/webapp/public/icons/%s", avatarName)
+		//file, err := os.Create(output)
+		//if err != nil {
+		//	panic(err)
+		//	// Openエラー処理
+		//}
+		//file.Write(([]byte)(avatarData))
+		//file.Close()
 		// dataにinsertはいらない
-		//_, err := db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
-		_, err = db.Exec("INSERT INTO image (name) VALUES (?)", avatarName)
+
+		_, err := db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
+		//_, err = db.Exec("INSERT INTO image (name) VALUES (?)", avatarName)
 		if err != nil {
 			return err
 		}
