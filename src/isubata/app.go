@@ -459,10 +459,7 @@ func queryHaveRead(userID, chID int64) (int64, error) {
 		userID, chID)
 
 	if err == sql.ErrNoRows {
-		return 0, nil
-	} else if err != nil {
-		//return 0, err
-
+		//return 0, nil
 		if val, ok := unread[chID]; ok {
 			return val, nil
 		}
@@ -473,6 +470,8 @@ func queryHaveRead(userID, chID int64) (int64, error) {
 			return 0, err
 		}
 		unread[chID] = h.Unread
+	} else if err != nil {
+		return 0, err
 	}
 
 	//return h.MessageID, nil
