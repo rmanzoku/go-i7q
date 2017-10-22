@@ -216,7 +216,7 @@ func getInitialize(c echo.Context) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	err = exec.Command("cp", "-rf", "/home/isucon/isubata/webapp/public/icons", "/home/isucon/isubata/webapp/public/images").Run()
+	err = exec.Command("cp", "-rf", "/home/isucon/isubata/webapp/public/images", "/home/isucon/isubata/webapp/public/icons").Run()
 	if err != nil {
 		fmt.Println(err)
 	}
