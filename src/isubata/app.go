@@ -227,6 +227,8 @@ func getInitialize(c echo.Context) error {
 		fmt.Println(err)
 	}
 
+	time.Sleep((3 * time.Second))
+
 	return c.String(204, "")
 }
 
