@@ -190,6 +190,10 @@ func register(name, password string) (int64, error) {
 	salt := randomString(20)
 	digest := fmt.Sprintf("%x", sha1.Sum([]byte(salt+password)))
 
+	//キャッシュに追加
+	addJsonifyCache(name, name, "default.png")
+
+	//ユーザーをDBに登録
 	res, err := db.Exec(
 		"INSERT INTO user (name, salt, password, display_name, avatar_icon, created_at)"+
 			" VALUES (?, ?, ?, ?, ?, NOW())",
