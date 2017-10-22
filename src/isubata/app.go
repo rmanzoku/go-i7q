@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -799,5 +800,16 @@ func main() {
 	e.GET("/icons/:file_name", getIcon)
 
 	unread = make(map[int64]int64, 10)
-	e.Start(":5000")
+
+	sock := "/tmp/isubata.sock"
+	listener, err := net.Listen("unix", sock)
+	if err != nil {
+		log.Fatalf("listen error: %v", err)
+	}
+	if err = os.Chmod(sock, os.FileMode(int(0777))); err != nil {
+		log.Fatalf("chmod error: %v", err)
+	}
+	e.Listener = listener
+	//e.Start(":5000")
+	e.Start("")
 }
