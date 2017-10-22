@@ -16,7 +16,12 @@ func initJsonifyCache() error {
 	return nil
 }
 
-func addJsonifyCache(name, display_name, avatar_icon string) {
+func addJsonifyCache(id int64, name, display_name, avatar_icon string) {
 	u := User{Name: name, DisplayName: display_name, AvatarIcon: avatar_icon}
-	jsonifyCache[u.ID] = u
+	jsonifyCache[id] = u
+}
+
+func postJsonifyCache(id int64, display_name, avatar_icon string) {
+	u := User{Name: jsonifyCache[id].Name, DisplayName: display_name, AvatarIcon: avatar_icon}
+	jsonifyCache[id] = u
 }

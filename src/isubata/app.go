@@ -190,9 +190,6 @@ func register(name, password string) (int64, error) {
 	salt := randomString(20)
 	digest := fmt.Sprintf("%x", sha1.Sum([]byte(salt+password)))
 
-	//キャッシュに追加
-	addJsonifyCache(name, name, "default.png")
-
 	//ユーザーをDBに登録
 	res, err := db.Exec(
 		"INSERT INTO user (name, salt, password, display_name, avatar_icon, created_at)"+
@@ -201,6 +198,11 @@ func register(name, password string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	//キャッシュに追加
+	id, _ := res.LastInsertId()
+	addJsonifyCache(id, name, name, "default.png")
+
 	return res.LastInsertId()
 }
 
@@ -686,6 +688,7 @@ func postProfile(c echo.Context) error {
 		if err != nil {
 			return err
 		}
+		postJsonifyCache(self.ID, name, avatarName)
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/")
