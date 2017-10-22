@@ -199,7 +199,9 @@ func register(name, password string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return res.LastInsertId()
+	id, err := res.LastInsertId()
+	addJsonifyCache(id, name, name, "default.png")
+	return id, err
 }
 
 // request handlers
@@ -710,6 +712,7 @@ func postProfile(c echo.Context) error {
 		if err != nil {
 			return err
 		}
+		postJsonifyCache(self.ID, name, avatarName)
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/")
