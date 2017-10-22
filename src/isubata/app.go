@@ -33,7 +33,6 @@ const (
 var (
 	db            *sqlx.DB
 	ErrBadReqeust = echo.NewHTTPError(http.StatusBadRequest)
-	unread        map[int64]int64
 )
 
 type Renderer struct {
@@ -218,14 +217,6 @@ func getInitialize(c echo.Context) error {
 		fmt.Println(err)
 	}
 	err = exec.Command("cp", "-rf", "/home/isucon/isubata/webapp/public/images", "/home/isucon/isubata/webapp/public/icons").Run()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// ベンチ走行で変わってる可能性あるので、ここでも初期化
-	_, err = db.Exec(`
-UPDATE haveread SET unread = (SELECT COUNT(*) FROM message WHERE channel_id = haveread.channel_id AND haveread.message_id < id)
-`)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -461,20 +452,8 @@ func queryHaveRead(userID, chID int64) (int64, error) {
 	if err == sql.ErrNoRows {
 		return 0, nil
 	} else if err != nil {
-		//return 0, err
-
-		if val, ok := unread[chID]; ok {
-			return val, nil
-		}
-		err = db.Get(&h.Unread,
-			"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ?",
-			chID)
-		if err != nil {
-			return 0, err
-		}
-		unread[chID] = h.Unread
+		return 0, err
 	}
-
 	//return h.MessageID, nil
 	return h.Unread, nil
 }
@@ -812,8 +791,6 @@ func main() {
 	e.GET("add_channel", getAddChannel)
 	e.POST("add_channel", postAddChannel)
 	e.GET("/icons/:file_name", getIcon)
-
-	unread = make(map[int64]int64)
 
 	e.Start(":5000")
 }
