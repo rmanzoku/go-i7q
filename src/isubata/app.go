@@ -33,6 +33,7 @@ const (
 var (
 	db            *sqlx.DB
 	ErrBadReqeust = echo.NewHTTPError(http.StatusBadRequest)
+	unread        map[int64]int64
 )
 
 type Renderer struct {
@@ -112,6 +113,11 @@ func addMessage(channelID, userID int64, content string) (int64, error) {
 		channelID, userID, content)
 	if err != nil {
 		return 0, err
+	}
+	if _, ok := unread[channelID]; ok {
+		unread[channelID] += 1
+	} else {
+		unread[channelID] = 1
 	}
 	return res.LastInsertId()
 }
@@ -477,9 +483,17 @@ func fetchUnread(c echo.Context) error {
 				"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ? AND ? < id",
 				chID, lastID)
 		} else {
-			err = db.Get(&cnt,
-				"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ?",
-				chID)
+			if val, ok := unread[chID]; ok {
+				cnt = val
+			} else {
+				err = db.Get(&cnt,
+					"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ?",
+					chID)
+				if err != nil {
+					return err
+				}
+				unread[chID] = cnt
+			}
 		}
 		if err != nil {
 			return err
@@ -782,5 +796,6 @@ func main() {
 	e.POST("add_channel", postAddChannel)
 	e.GET("/icons/:file_name", getIcon)
 
+	unread = make(map[int64]int64, 10)
 	e.Start(":5000")
 }
