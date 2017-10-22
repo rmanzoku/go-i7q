@@ -694,9 +694,8 @@ func postProfile(c echo.Context) error {
 			panic(err)
 			// Openエラー処理
 		}
-		defer file.Close()
 		file.Write(([]byte)(avatarData))
-
+		file.Close()
 		// dataにinsertはいらない
 		//_, err := db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
 		_, err = db.Exec("INSERT INTO image (name) VALUES (?)", avatarName)
