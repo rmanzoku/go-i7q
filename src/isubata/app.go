@@ -410,10 +410,17 @@ func getMessage(c echo.Context) error {
 	}
 
 	if len(messages) > 0 {
-		_, err := db.Exec("INSERT INTO haveread (user_id, channel_id, message_id, updated_at, created_at)"+
-			" VALUES (?, ?, ?, NOW(), NOW())"+
+		var cnt int64
+		err = db.Get(&cnt,
+			"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ? AND ? < id",
+			chID, messages[0].ID)
+		if err != nil {
+			panic(err)
+		}
+		_, err := db.Exec("INSERT INTO haveread (user_id, channel_id, message_id, updated_at, created_at, unread)"+
+			" VALUES (?, ?, ?, NOW(), NOW(), ?)"+
 			" ON DUPLICATE KEY UPDATE message_id = ?, updated_at = NOW()",
-			userID, chanID, messages[0].ID, messages[0].ID)
+			userID, chanID, messages[0].ID, messages[0].ID, cnt)
 		if err != nil {
 			return err
 		}
@@ -433,6 +440,7 @@ func queryHaveRead(userID, chID int64) (int64, error) {
 		UserID    int64     `db:"user_id"`
 		ChannelID int64     `db:"channel_id"`
 		MessageID int64     `db:"message_id"`
+		Unread    int64     `db:"unread"`
 		UpdatedAt time.Time `db:"updated_at"`
 		CreatedAt time.Time `db:"created_at"`
 	}
@@ -446,7 +454,8 @@ func queryHaveRead(userID, chID int64) (int64, error) {
 	} else if err != nil {
 		return 0, err
 	}
-	return h.MessageID, nil
+	//return h.MessageID, nil
+	return h.Unread, nil
 }
 
 func fetchUnread(c echo.Context) error {
@@ -466,24 +475,25 @@ func fetchUnread(c echo.Context) error {
 	resp := []map[string]interface{}{}
 
 	for _, chID := range channels {
-		lastID, err := queryHaveRead(userID, chID)
+		//lastID, err := queryHaveRead(userID, chID)
+		cnt, err := queryHaveRead(userID, chID)
 		if err != nil {
 			return err
 		}
 
-		var cnt int64
-		if lastID > 0 {
-			err = db.Get(&cnt,
-				"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ? AND ? < id",
-				chID, lastID)
-		} else {
-			err = db.Get(&cnt,
-				"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ?",
-				chID)
-		}
-		if err != nil {
-			return err
-		}
+		//var cnt int64
+		//if lastID > 0 {
+		//	err = db.Get(&cnt,
+		//		"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ? AND ? < id",
+		//		chID, lastID)
+		//} else {
+		//	err = db.Get(&cnt,
+		//		"SELECT COUNT(*) as cnt FROM message WHERE channel_id = ?",
+		//		chID)
+		//}
+		//if err != nil {
+		//	return err
+		//}
 		r := map[string]interface{}{
 			"channel_id": chID,
 			"unread":     cnt}
