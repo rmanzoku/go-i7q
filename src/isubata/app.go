@@ -664,7 +664,19 @@ func postProfile(c echo.Context) error {
 	}
 
 	if avatarName != "" && len(avatarData) > 0 {
-		_, err := db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
+
+		// publicに画像を吐く
+		output := fmt.Sprintf("/home/isucon/isubata/webapp/public/icons/%s", avatarName)
+		file, err := os.Create(output)
+		if err != nil {
+			// Openエラー処理
+		}
+		defer file.Close()
+		file.Write(([]byte)(avatarData))
+
+		// dataにinsertはいらない
+		//_, err := db.Exec("INSERT INTO image (name, data) VALUES (?, ?)", avatarName, avatarData)
+		_, err = db.Exec("INSERT INTO image (name) VALUES (?)", avatarName)
 		if err != nil {
 			return err
 		}
